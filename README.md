@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" alt="SHADOWTRACE — Behavioral Actor Attribution" width="100%" />
+  <img src="assets/banner.png" alt="SHADOWTRACE — Behavioral Actor Attribution" width="720" />
 </p>
 
 <h1 align="center">SHADOWTRACE</h1>
