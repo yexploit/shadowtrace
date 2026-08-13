@@ -1,4 +1,22 @@
-# SHADOWTRACE
+<p align="center">
+  <img src="assets/banner.png" alt="SHADOWTRACE — Behavioral Actor Attribution" width="100%" />
+</p>
+
+<h1 align="center">SHADOWTRACE</h1>
+
+<p align="center">
+  <strong>Detect attackers by behavior — not by IP.</strong><br/>
+  Real-time behavioral fingerprinting &amp; cross-IP actor attribution
+</p>
+
+<p align="center">
+  <a href="https://github.com/yexploit/shadowtrace"><img src="https://img.shields.io/badge/GitHub-yexploit%2Fshadowtrace-0a1014?style=flat-square" alt="GitHub" /></a>
+  <img src="https://img.shields.io/badge/CLI-shadowtrace.py-1f8f85?style=flat-square" alt="CLI" />
+  <img src="https://img.shields.io/badge/GUI-shadowtrace__gui.py-3dd6c6?style=flat-square" alt="GUI" />
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-7f93a4?style=flat-square" alt="Platform" />
+</p>
+
+---
 
 **Real-time attacker behavioral fingerprinting** — detect operators by behavior, not IP.
 
@@ -169,6 +187,7 @@ logs / PCAP / UDP / HTTP API
 shadowtrace/                 # project root
 ├── shadowtrace.py           # CLI starter
 ├── shadowtrace_gui.py       # GUI starter
+├── assets/banner.png        # README banner
 ├── pyproject.toml
 ├── requirements.txt
 ├── README.md
