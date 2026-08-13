@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SHADOWTRACE — Live Behavioral Attribution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/app.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" id="live-dot"></span>
+      <div>
+        <h1>SHADOWTRACE</h1>
+        <p class="tagline">live behavioral actor attribution</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="btn-start" class="btn primary" type="button">Start monitor</button>
+      <button id="btn-stop" class="btn" type="button">Stop</button>
+      <button id="btn-attribute" class="btn" type="button">Attribute now</button>
+      <button id="btn-reset" class="btn ghost" type="button">Reset DB</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="hero-status" id="hero-status">
+      <div class="status-card">
+        <span class="eyebrow" id="live-eyebrow">LIVE · IDLE</span>
+        <h2 id="verdict">Waiting for traffic</h2>
+        <p id="verdict-sub">Tail auth/access logs, enable packet capture, or push events via API / UDP.</p>
+      </div>
+      <div class="stat-strip" id="stat-strip">
+        <div><span class="n" id="s-events">0</span><span class="l">db events</span></div>
+        <div><span class="n" id="s-rate">0</span><span class="l">events / min</span></div>
+        <div><span class="n" id="s-fps">0</span><span class="l">fingerprints</span></div>
+        <div><span class="n" id="s-clusters">0</span><span class="l">clusters</span></div>
+      </div>
+    </section>
+
+    <section class="panel monitor-panel">
+      <div class="panel-head">
+        <h3>Live sources</h3>
+        <span class="hint" id="ws-state">websocket …</span>
+      </div>
+      <form id="monitor-form" class="monitor-form">
+        <label>
+          Log path(s)
+          <input id="mon-paths" placeholder="C:\logs\auth.log  or  /var/log/auth.log" />
+        </label>
+        <label>
+          Kind
+          <select id="mon-kind">
+            <option value="auto">auto</option>
+            <option value="jsonl">jsonl</option>
+            <option value="ssh">ssh</option>
+            <option value="http">http</option>
+          </select>
+        </label>
+        <label class="check">
+          <input id="mon-capture" type="checkbox" /> Live packet capture
+        </label>
+        <label>
+          Interface
+          <input id="mon-iface" placeholder="optional (eth0 / Ethernet)" />
+        </label>
+        <label>
+          UDP port
+          <input id="mon-udp" type="number" placeholder="9514" />
+        </label>
+      </form>
+      <div class="source-meta" id="source-meta">No active watchers</div>
+    </section>
+
+    <section class="panel" id="clusters-panel">
+      <div class="panel-head">
+        <h3>Operator clusters</h3>
+        <span class="hint">same behavior · different IPs</span>
+      </div>
+      <div id="clusters" class="cluster-list"></div>
+    </section>
+
+    <section class="split">
+      <div class="panel">
+        <div class="panel-head"><h3>Attacker fingerprints</h3></div>
+        <div id="fingerprints" class="fp-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Similarity graph</h3>
+          <span class="hint">edges = probable same actor</span>
+        </div>
+        <canvas id="graph" width="640" height="420"></canvas>
+      </div>
+    </section>
+
+    <section class="split">
+      <div class="panel">
+        <div class="panel-head"><h3>Live event feed</h3></div>
+        <div id="feed" class="feed"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Pairwise attribution</h3></div>
+        <div class="table-wrap">
+          <table id="attr-table">
+            <thead>
+              <tr>
+                <th>IP A</th><th>IP B</th><th>Score</th>
+                <th>Temporal</th><th>Enum</th><th>Proto</th><th>User</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="split">
+      <div class="panel">
+        <div class="panel-head"><h3>SOC detections</h3></div>
+        <div id="detections" class="det-list"></div>
+        <div class="upload-box">
+          <label class="btn ghost" for="file-input">Upload historical log / PCAP / Zeek</label>
+          <input id="file-input" type="file" hidden />
+          <select id="kind-select">
+            <option value="auto">auto</option>
+            <option value="jsonl">jsonl</option>
+            <option value="ssh">ssh</option>
+            <option value="http">http</option>
+            <option value="zeek">zeek</option>
+            <option value="pcap">pcap</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel compare-panel">
+        <div class="panel-head"><h3>Compare two IPs</h3></div>
+        <form id="compare-form" class="compare-form">
+          <input id="ip-a" placeholder="src IP A" required />
+          <span class="vs">vs</span>
+          <input id="ip-b" placeholder="src IP B" required />
+          <button class="btn primary" type="submit">Match</button>
+        </form>
+        <div id="compare-out" class="compare-out"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>SHADOWTRACE · real-time CLI + GUI · Windows / Linux</span>
+    <span id="api-health">api …</span>
+  </footer>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>
